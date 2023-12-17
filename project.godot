@@ -13,9 +13,15 @@ _global_script_classes=[ {
 "class": "Dungeon",
 "language": "GDScript",
 "path": "res://scripts/entity/dungeon.gd"
+}, {
+"base": "Node",
+"class": "Server",
+"language": "GDScript",
+"path": "res://scripts/net/server.gd"
 } ]
 _global_script_class_icons={
-"Dungeon": ""
+"Dungeon": "",
+"Server": ""
 }
 
 [application]
