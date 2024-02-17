@@ -4,6 +4,8 @@ extends Node
 
 signal started
 signal data_received
+signal client_connected
+signal client_disconnected
 
 
 var _server = WebSocketServer.new()
@@ -30,22 +32,38 @@ func start(port: int) -> bool:
 	return true
 
 
+func send(id: int, data: String) -> void:
+	self._server.get_peer(id).put_packet(data.to_utf8())
+
+
+func stop() -> void:
+	self._server.stop()
+
+
+func disconnect_client(id: int) -> void:
+	self._server.disconnect_peer(id)
+
+
 func _connected(id: int, proto: String) -> void:
-	print("Client %d connected with protocol: %s" % [id, proto])
+	emit_signal("client_connected", id)
+
 
 func _close_request(id: int, code: int, reason: String) -> void:
 	print("Client %d disconnecting with code: %d, reason: %s" % [id, code, reason])
+	
 
 func _disconnected(id: int, was_clean: bool = false) -> void:
-	print("Client %d disconnected, clean: %s" % [id, str(was_clean)])
+	emit_signal("client_disconnected", id)
+
 
 func _on_data(id: int) -> void:
-	var pkt = _server.get_peer(id).get_packet()
-	print("Got data from client %d: %s ... echoing" % [id, pkt.get_string_from_utf8()])
-	_server.get_peer(id).put_packet(pkt)
-	
-	emit_signal("data_received", id, pkt.get_string_from_utf8())
+	var packet = self._server.get_peer(id).get_packet()
+	emit_signal("data_received", id, packet.get_string_from_utf8())
 
 
 func _process(delta: float) -> void:
-	_server.poll()
+	self._server.poll()
+
+
+func _exit_tree():
+	self._server.stop()

@@ -15,11 +15,14 @@ func _ready() -> void:
 	$Button.connect(\"pressed\", self, \"_on_button_pressed\")
 	
 	self.server.connect(\"started\", self, \"_on_server_started\")
+	self.server.connect(\"data_received\", self, \"_on_server_data_received\")
+	self.server.connect(\"client_connected\", self, \"_on_server_client_connected\")
+	self.server.connect(\"client_disconnected\", self, \"_on_server_client_disconnected\")
+	
 	self.client.connect(\"started\", self, \"_on_client_started\")
 	self.client.connect(\"data_received\", self, \"_on_client_data_received\")
 	self.client.connect(\"connected\", self, \"_on_client_connected\")
-	
-	
+	self.client.connect(\"disconnected\", self, \"_on_client_disconnected\")
 
 
 func _on_button_pressed() -> void:
@@ -31,21 +34,37 @@ func _on_button_pressed() -> void:
 
 
 func _on_server_started() -> void:
-	print(\"server started\")
+	print(\"SERVER> Server started\")
 
+
+func _on_server_data_received(id: int, data: String) -> void:
+	print(\"SERVER> CLIENT #%d SENT %s\" % [id, data])
+	self.server.disconnect_client(id)
+
+
+func _on_server_client_connected(id: int) -> void:
+	print(\"SERVER> CLIENT #%d CONNECTED\" % [id])
+
+
+func _on_server_client_disconnected(id: int) -> void:
+	print(\"SERVER> CLIENT #%d DISCONNECTED\" % [id])
+	
 
 func _on_client_started() -> void:
-	print(\"client started\")
+	print(\"CLIENT> Client started\")
 
 
 func _on_client_data_received(data: String) -> void:
-	print(\"DATA RECEIVED: %s \" % [data])
+	print(\"CLIENT> DATA RECEIVED: %s \" % [data])
 
 
 func _on_client_connected() -> void:
-	print(\"CONNECTED\")
-	
+	print(\"CLIENT> CONNECTED\")
 	self.client.send(\"Message from client.\")
+
+
+func _on_client_disconnected() -> void:
+	print(\"CLIENT> DISCONNECTED\")
 "
 
 [node name="Gameplay" type="Node2D"]

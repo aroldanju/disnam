@@ -5,6 +5,7 @@ extends Node
 signal started
 signal data_received
 signal connected
+signal disconnected
 
 
 var _client = WebSocketClient.new()
@@ -33,15 +34,22 @@ func start(endpoint: String, port: int) -> bool:
 	return true
 
 
+func close() -> void:
+	self._client.disconnect_from_host(1000)
+
+
+func send(data: String) -> void:
+#	self._client.get_peer(1).set_write_mode(WebSocketPeer.WRITE_MODE_TEXT)
+	self._client.get_peer(1).put_packet(data.to_utf8())
+
+
 func _connected(protocol: String) -> void:
-	print("Connected with protocol: %s" % [protocol])
-	
 	emit_signal("connected")
 
 
 func _disconnected(was_clean: bool = false) -> void:
-	print("Disconnected, clean: %s" % [str(was_clean)])
 	set_process(false)
+	emit_signal("disconnected")
 
 
 func _close_requested(code: int, reason: String) -> void:
@@ -55,8 +63,6 @@ func _error() -> void:
 
 func _on_data() -> void:
 	var packet = self._client.get_peer(1).get_packet()
-	print("Got data from server: %s" % [packet.get_string_from_utf8()])
-	
 	emit_signal("data_received", packet.get_string_from_utf8())
 
 
@@ -66,13 +72,4 @@ func _process(delta: float) -> void:
 
 func _exit_tree():
 	self._client.disconnect_from_host()
-
-
-func close() -> void:
-	self._client.disconnect_from_host(1000)
-
-
-func send(data: String) -> void:
-	self._client.get_peer(1).set_write_mode(WebSocketPeer.WRITE_MODE_TEXT)
-	self._client.get_peer(1).put_packet(data.to_ascii())
 
