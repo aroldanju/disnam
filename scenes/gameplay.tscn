@@ -4,8 +4,8 @@
 script/source = "extends Node2D
 
 
-var server: Server = Server.new()
-var client: Client = Client.new()
+var server: Server = Server.new(JsonProtocol.new())
+var client: Client = Client.new(JsonProtocol.new())
 
 
 func _ready() -> void:
@@ -37,9 +37,9 @@ func _on_server_started() -> void:
 	print(\"SERVER> Server started\")
 
 
-func _on_server_data_received(id: int, data: String) -> void:
-	print(\"SERVER> CLIENT #%d SENT %s\" % [id, data])
-	self.server.disconnect_client(id)
+func _on_server_data_received(id: int, data) -> void:
+	print(\"SERVER> CLIENT #%d SENT %s\" % [id, str(data)])
+	self.server.send(id, data)
 
 
 func _on_server_client_connected(id: int) -> void:
@@ -54,13 +54,20 @@ func _on_client_started() -> void:
 	print(\"CLIENT> Client started\")
 
 
-func _on_client_data_received(data: String) -> void:
-	print(\"CLIENT> DATA RECEIVED: %s \" % [data])
+func _on_client_data_received(data) -> void:
+	print(\"CLIENT> DATA RECEIVED: %s \" % [str(data)])
+	
+	print(data[\"message\"])
 
 
 func _on_client_connected() -> void:
 	print(\"CLIENT> CONNECTED\")
-	self.client.send(\"Message from client.\")
+	
+	var data: Dictionary = {
+		\"message\": \"This is a message\"
+	}
+	
+	self.client.send(data)
 
 
 func _on_client_disconnected() -> void:

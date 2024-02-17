@@ -8,7 +8,12 @@ signal connected
 signal disconnected
 
 
-var _client = WebSocketClient.new()
+var _client: WebSocketClient = WebSocketClient.new()
+var _protocol: Protocol
+
+
+func _init(protocol: Protocol = RawProtocol.new()):
+	self._protocol = protocol
 
 
 func _ready():
@@ -38,9 +43,9 @@ func close() -> void:
 	self._client.disconnect_from_host(1000)
 
 
-func send(data: String) -> void:
+func send(data) -> void:
 #	self._client.get_peer(1).set_write_mode(WebSocketPeer.WRITE_MODE_TEXT)
-	self._client.get_peer(1).put_packet(data.to_utf8())
+	self._client.get_peer(1).put_packet(self._protocol.on_data_sent(data))
 
 
 func _connected(protocol: String) -> void:
@@ -63,7 +68,7 @@ func _error() -> void:
 
 func _on_data() -> void:
 	var packet = self._client.get_peer(1).get_packet()
-	emit_signal("data_received", packet.get_string_from_utf8())
+	emit_signal("data_received", self._protocol.on_data_received(packet))
 
 
 func _process(delta: float) -> void:
