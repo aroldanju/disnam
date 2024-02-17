@@ -3,21 +3,49 @@
 [sub_resource type="GDScript" id=1]
 script/source = "extends Node2D
 
+
 var server: Server = Server.new()
+var client: Client = Client.new()
 
 
 func _ready() -> void:
+	add_child(self.server)
+	add_child(self.client)
+	
 	$Button.connect(\"pressed\", self, \"_on_button_pressed\")
 	
 	self.server.connect(\"started\", self, \"_on_server_started\")
+	self.client.connect(\"started\", self, \"_on_client_started\")
+	self.client.connect(\"data_received\", self, \"_on_client_data_received\")
+	self.client.connect(\"connected\", self, \"_on_client_connected\")
+	
+	
 
 
 func _on_button_pressed() -> void:
 	self.server.start(1234)
+	
+	yield(get_tree().create_timer(1), \"timeout\")
+	
+	self.client.start(\"ws://127.0.0.1\", 1234)
 
 
 func _on_server_started() -> void:
 	print(\"server started\")
+
+
+func _on_client_started() -> void:
+	print(\"client started\")
+
+
+func _on_client_data_received(data: String) -> void:
+	print(\"DATA RECEIVED: %s \" % [data])
+
+
+func _on_client_connected() -> void:
+	print(\"CONNECTED\")
+	
+	self.client.send(\"Message from client.\")
 "
 
 [node name="Gameplay" type="Node2D"]

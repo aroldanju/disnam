@@ -9,6 +9,11 @@
 config_version=4
 
 _global_script_classes=[ {
+"base": "Node",
+"class": "Client",
+"language": "GDScript",
+"path": "res://scripts/net/client.gd"
+}, {
 "base": "Reference",
 "class": "Dungeon",
 "language": "GDScript",
@@ -20,6 +25,7 @@ _global_script_classes=[ {
 "path": "res://scripts/net/server.gd"
 } ]
 _global_script_class_icons={
+"Client": "",
 "Dungeon": "",
 "Server": ""
 }

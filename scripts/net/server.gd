@@ -3,6 +3,7 @@ extends Node
 
 
 signal started
+signal data_received
 
 
 var _server = WebSocketServer.new()
@@ -42,6 +43,9 @@ func _on_data(id: int) -> void:
 	var pkt = _server.get_peer(id).get_packet()
 	print("Got data from client %d: %s ... echoing" % [id, pkt.get_string_from_utf8()])
 	_server.get_peer(id).put_packet(pkt)
+	
+	emit_signal("data_received", id, pkt.get_string_from_utf8())
+
 
 func _process(delta: float) -> void:
 	_server.poll()
