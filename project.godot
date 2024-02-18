@@ -53,6 +53,10 @@ _global_script_class_icons={
 config/name="Disnam"
 config/icon="res://icon.png"
 
+[autoload]
+
+Global="*res://scripts/global.gd"
+
 [display]
 
 window/size/width=640
