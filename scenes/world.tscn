@@ -48,6 +48,8 @@ func _generate_chunk(noise: OpenSimplexNoise, offset: Vector2) -> void:
 	chunk.generate_chunk(noise, offset)
 	
 	self._chunks[str(offset)] = chunk
+	
+	print(\"reveal chunk %d,%d\" % [offset.x, offset.y])
 
 "
 

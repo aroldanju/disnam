@@ -27,11 +27,11 @@ func _ready() -> void:
 	self.client.connect(\"connected\", self, \"_on_client_connected\")
 	self.client.connect(\"disconnected\", self, \"_on_client_disconnected\")
 	
-	var chunks: Array = []
-	for i in range(10):
-		for j in range(10):
-			chunks.append(Vector2(j - 5, i - 5))
-	$World.generate_terrain(chunks)
+#	var chunks: Array = []
+#	for i in range(10):
+#		for j in range(10):
+#			chunks.append(Vector2(j - 5, i - 5))
+#	$World.generate_terrain(chunks)
 
 
 func _on_button_pressed() -> void:
@@ -104,9 +104,38 @@ func _input(event):
 
 func _process(delta) -> void:
 	$Player.position += 100 * velocity * delta
+	var chunk: Vector2 = _calculate_current_chunk($Player.position)
+	var chunks: Array = _calculate_chunks_around(chunk)
+	$World.generate_terrain(chunks)
 	
 	
+func _calculate_current_chunk(player_position: Vector2) -> Vector2:
+	var chunk: Vector2 = Vector2(
+		player_position.x / 16 / Global.WORLD_CHUNK_SIZE,
+		player_position.y / 16 / Global.WORLD_CHUNK_SIZE
+	)
 	
+	if chunk.x < 0.0:
+		chunk.x -= 1.0
+	if chunk.y < 0.0:
+		chunk.y -= 1.0
+	
+	return Vector2(int(chunk.x), int(chunk.y))
+
+
+func _calculate_chunks_around(chunk: Vector2) -> Array:
+	var chunks: Array = []
+	
+	for i in range(Global.RENDER_DISTANCE):
+		for j in range(Global.RENDER_DISTANCE):
+			var neighbor_chunk: Vector2 = Vector2(
+				chunk.x - Global.RENDER_DISTANCE / 2 + j,
+				chunk.y - Global.RENDER_DISTANCE / 2 + i
+			)
+			
+			chunks.append(neighbor_chunk)
+	
+	return chunks
 
 "
 
