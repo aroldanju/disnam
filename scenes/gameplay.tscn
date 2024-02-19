@@ -1,28 +1,159 @@
-[gd_scene load_steps=2 format=3 uid="uid://b7p2oa7w8y16"]
+[gd_scene load_steps=4 format=2]
 
-[sub_resource type="GDScript" id="GDScript_ecovs"]
-script/source = "# This file is part of Disnam.
-# 
-# Disnam is free software: you can redistribute it and/or modify it under the 
-# terms of the GNU General Public License as published by the Free Software 
-# Foundation, either version 3 of the License, or (at your option) any later 
-# version.
-# 
-# Disnam is distributed in the hope that it will be useful, but WITHOUT ANY 
-# WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
-# A PARTICULAR PURPOSE. See the GNU General Public License for more details.
-# 
-# You should have received a copy of the GNU General Public License along with 
-# Disnam. If not, see <https://www.gnu.org/licenses/>
+[ext_resource path="res://scenes/world.tscn" type="PackedScene" id=1]
+[ext_resource path="res://scenes/player.tscn" type="PackedScene" id=2]
+
+[sub_resource type="GDScript" id=1]
+script/source = "extends Node2D
 
 
-extends Node2D
+var server: Server = Server.new(JsonProtocol.new())
+var client: Client = Client.new(JsonProtocol.new())
 
+var _movement_pressed: Array = [false, false, false, false]
 
 func _ready() -> void:
-	pass
+	add_child(self.server)
+	add_child(self.client)
+	
+	$Button.connect(\"pressed\", self, \"_on_button_pressed\")
+	
+	self.server.connect(\"started\", self, \"_on_server_started\")
+	self.server.connect(\"data_received\", self, \"_on_server_data_received\")
+	self.server.connect(\"client_connected\", self, \"_on_server_client_connected\")
+	self.server.connect(\"client_disconnected\", self, \"_on_server_client_disconnected\")
+	
+	self.client.connect(\"started\", self, \"_on_client_started\")
+	self.client.connect(\"data_received\", self, \"_on_client_data_received\")
+	self.client.connect(\"connected\", self, \"_on_client_connected\")
+	self.client.connect(\"disconnected\", self, \"_on_client_disconnected\")
+	
+#	var chunks: Array = []
+#	for i in range(10):
+#		for j in range(10):
+#			chunks.append(Vector2(j - 5, i - 5))
+#	$World.generate_terrain(chunks)
 
+
+func _on_button_pressed() -> void:
+	self.server.start(1234)
+	
+	yield(get_tree().create_timer(1), \"timeout\")
+	
+	self.client.start(\"ws://127.0.0.1\", 1234)
+
+
+func _on_server_started() -> void:
+	print(\"SERVER> Server started\")
+
+
+func _on_server_data_received(id: int, data) -> void:
+	print(\"SERVER> CLIENT #%d SENT %s\" % [id, str(data)])
+	self.server.send(id, data)
+
+
+func _on_server_client_connected(id: int) -> void:
+	print(\"SERVER> CLIENT #%d CONNECTED\" % [id])
+
+
+func _on_server_client_disconnected(id: int) -> void:
+	print(\"SERVER> CLIENT #%d DISCONNECTED\" % [id])
+	
+
+func _on_client_started() -> void:
+	print(\"CLIENT> Client started\")
+
+
+func _on_client_data_received(data) -> void:
+	print(\"CLIENT> DATA RECEIVED: %s \" % [str(data)])
+	
+	print(data[\"message\"])
+
+
+func _on_client_connected() -> void:
+	print(\"CLIENT> CONNECTED\")
+	
+	var data: Dictionary = {
+		\"message\": \"This is a message\"
+	}
+	
+	self.client.send(data)
+
+
+func _on_client_disconnected() -> void:
+	print(\"CLIENT> DISCONNECTED\")
+
+
+func _input(event):
+	if event is InputEventKey:
+		if event.scancode == KEY_LEFT:
+			self._movement_pressed[0] = event.pressed
+		elif event.scancode == KEY_UP:
+			self._movement_pressed[1] = event.pressed
+		elif event.scancode == KEY_RIGHT:
+			self._movement_pressed[2] = event.pressed
+		elif event.scancode == KEY_DOWN:
+			self._movement_pressed[3] = event.pressed
+
+
+func _process(delta) -> void:
+	_process_movement()
+	
+	var chunk: Vector2 = _calculate_current_chunk($Player.position)
+	var chunks: Array = _calculate_chunks_around(chunk)
+	$World.generate_terrain(chunks)
+	
+	
+func _calculate_current_chunk(player_position: Vector2) -> Vector2:
+	var chunk: Vector2 = Vector2(
+		player_position.x / 16 / Global.WORLD_CHUNK_SIZE,
+		player_position.y / 16 / Global.WORLD_CHUNK_SIZE
+	)
+	
+	if chunk.x < 0.0:
+		chunk.x -= 1.0
+	if chunk.y < 0.0:
+		chunk.y -= 1.0
+	
+	return Vector2(int(chunk.x), int(chunk.y))
+
+
+func _calculate_chunks_around(chunk: Vector2) -> Array:
+	var chunks: Array = []
+	
+	for i in range(Global.RENDER_DISTANCE):
+		for j in range(Global.RENDER_DISTANCE):
+			var neighbor_chunk: Vector2 = Vector2(
+				chunk.x - Global.RENDER_DISTANCE / 2 + j,
+				chunk.y - Global.RENDER_DISTANCE / 2 + i
+			)
+			
+			chunks.append(neighbor_chunk)
+	
+	return chunks
+
+
+func _process_movement():
+	if self._movement_pressed[0]:
+		$Player.move(0)
+	elif self._movement_pressed[1]:
+		$Player.move(1)
+	elif self._movement_pressed[2]:
+		$Player.move(2)
+	elif self._movement_pressed[3]:
+		$Player.move(3)
 "
 
 [node name="Gameplay" type="Node2D"]
-script = SubResource("GDScript_ecovs")
+script = SubResource( 1 )
+
+[node name="Button" type="Button" parent="."]
+margin_left = 154.0
+margin_top = 168.0
+margin_right = 284.0
+margin_bottom = 220.0
+text = "Start"
+
+[node name="World" parent="." instance=ExtResource( 1 )]
+
+[node name="Player" parent="." instance=ExtResource( 2 )]

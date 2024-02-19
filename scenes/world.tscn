@@ -1,0 +1,64 @@
+[gd_scene load_steps=2 format=2]
+
+[sub_resource type="GDScript" id=1]
+script/source = "extends Node2D
+
+
+const WorldChunk = preload(\"res://scenes/world_chunk.tscn\")
+
+
+var _chunks: Dictionary = {}
+var _perlin_noise: OpenSimplexNoise
+
+
+func _ready() -> void:
+	_configure_perlin_noise()
+
+
+func _configure_perlin_noise() -> void:
+	self._perlin_noise = OpenSimplexNoise.new()
+	
+	self._perlin_noise.seed = 0
+	self._perlin_noise.octaves = 4
+	self._perlin_noise.period = 20.0
+	self._perlin_noise.persistence = 0.8
+
+
+func generate_terrain(chunks: Array) -> void:
+	_generate_terrain(self._perlin_noise, chunks)
+	_toggle_chunks_visibility(chunks)
+
+
+func _toggle_chunks_visibility(chunks: Array) -> void:
+	for chunk in self._chunks:
+		self._chunks[chunk].visible = false
+	
+	for chunk in chunks:
+		self._chunks[str(chunk)].visible = true
+
+
+func _generate_terrain(noise: OpenSimplexNoise, chunks: Array) -> void:
+	for chunk in chunks:
+		_generate_chunk(noise, chunk)
+
+
+func is_chunk_generated(offset: Vector2) -> bool:
+	return self._chunks.has(str(offset))
+
+
+func _generate_chunk(noise: OpenSimplexNoise, offset: Vector2) -> void:
+	if self._chunks.has(str(offset)):
+		return
+	
+	var chunk: Node = self.WorldChunk.instance()
+	add_child(chunk)
+	
+	chunk.position = Vector2(offset.x * Global.WORLD_CHUNK_SIZE * 16, offset.y * Global.WORLD_CHUNK_SIZE * 16)
+	chunk.generate_chunk(noise, offset)
+	
+	self._chunks[str(offset)] = chunk
+
+"
+
+[node name="World" type="Node2D"]
+script = SubResource( 1 )

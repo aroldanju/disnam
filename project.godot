@@ -6,19 +6,72 @@
 ;   [section] ; section goes between []
 ;   param=value ; assign values to parameters
 
-config_version=5
+config_version=4
+
+_global_script_classes=[ {
+"base": "Node",
+"class": "Client",
+"language": "GDScript",
+"path": "res://scripts/net/client.gd"
+}, {
+"base": "Reference",
+"class": "Dungeon",
+"language": "GDScript",
+"path": "res://scripts/entity/dungeon.gd"
+}, {
+"base": "Protocol",
+"class": "JsonProtocol",
+"language": "GDScript",
+"path": "res://scripts/net/json_protocol.gd"
+}, {
+"base": "Node",
+"class": "Protocol",
+"language": "GDScript",
+"path": "res://scripts/net/protocol.gd"
+}, {
+"base": "Protocol",
+"class": "RawProtocol",
+"language": "GDScript",
+"path": "res://scripts/net/raw_protocol.gd"
+}, {
+"base": "Node",
+"class": "Server",
+"language": "GDScript",
+"path": "res://scripts/net/server.gd"
+} ]
+_global_script_class_icons={
+"Client": "",
+"Dungeon": "",
+"JsonProtocol": "",
+"Protocol": "",
+"RawProtocol": "",
+"Server": ""
+}
 
 [application]
 
 config/name="Disnam"
-config/features=PackedStringArray("4.1", "Mobile")
-config/icon="res://icon.svg"
+config/icon="res://icon.png"
+
+[autoload]
+
+Global="*res://scripts/global.gd"
 
 [display]
 
-window/size/viewport_width=480
-window/size/viewport_height=270
+window/size/width=640
+window/size/height=360
+window/stretch/mode="viewport"
+window/stretch/aspect="keep"
+
+[gui]
+
+common/drop_mouse_on_gui_input_disabled=true
+
+[physics]
+
+common/enable_pause_aware_picking=true
 
 [rendering]
 
-renderer/rendering_method="mobile"
+environment/default_environment="res://default_env.tres"
