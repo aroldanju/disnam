@@ -26,6 +26,15 @@ func _configure_perlin_noise() -> void:
 
 func generate_terrain(chunks: Array) -> void:
 	_generate_terrain(self._perlin_noise, chunks)
+	_toggle_chunks_visibility(chunks)
+
+
+func _toggle_chunks_visibility(chunks: Array) -> void:
+	for chunk in self._chunks:
+		self._chunks[chunk].visible = false
+	
+	for chunk in chunks:
+		self._chunks[str(chunk)].visible = true
 
 
 func _generate_terrain(noise: OpenSimplexNoise, chunks: Array) -> void:
@@ -48,8 +57,6 @@ func _generate_chunk(noise: OpenSimplexNoise, offset: Vector2) -> void:
 	chunk.generate_chunk(noise, offset)
 	
 	self._chunks[str(offset)] = chunk
-	
-	print(\"reveal chunk %d,%d\" % [offset.x, offset.y])
 
 "
 

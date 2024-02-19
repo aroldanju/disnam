@@ -35,18 +35,34 @@ func generate_chunk(noise: OpenSimplexNoise, offset: Vector2) -> void:
 
 
 func _get_tile_by_noise(noise: float) -> int:
-	var grass_tiles: Array = [0, 5, 6, 7]
 	var water_tile: int = 5 * 49 + 8
 	var forest_tiles: Array = [49, 50, 51, 52, 53]
+	var grass_tiles: Dictionary = {
+		5: 0.1,
+		6: 0.05,
+		7: 0.025,
+		0: 0.8,
+	}
 	
 	if noise >= 0.0 - Global.WORLD_WATER_THRESHOLD:
 		if noise >= 0.7:
 			return forest_tiles[rand_range(0, forest_tiles.size() - 1)]
 		else:
-			return grass_tiles[rand_range(0, grass_tiles.size() - 1)]
+			return _get_element_by_odds(grass_tiles)
 	else:
 		return water_tile
 
+
+func _get_element_by_odds(elements: Dictionary) -> int:
+	var random: float = randf()
+	
+	var total: float = 0.0
+	for element in elements:
+		total += elements[element]
+		if random <= total:
+			return element
+	
+	return elements.values()[elements.size() - 1]
 "
 
 [node name="WorldChunk" type="Node2D"]
@@ -59,6 +75,7 @@ cell_custom_transform = Transform2D( 16, 0, 0, 16, 0, 0 )
 format = 1
 
 [node name="Sprite" type="Sprite" parent="."]
+visible = false
 position = Vector2( 64, 64 )
 scale = Vector2( 8, 8 )
 texture = ExtResource( 2 )
