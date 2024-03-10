@@ -12,7 +12,7 @@ var _client: WebSocketClient = WebSocketClient.new()
 var _protocol: Protocol
 
 
-func _init(protocol: Protocol = RawProtocol.new()):
+func _init(protocol: Protocol = JsonProtocol.new()):
 	self._protocol = protocol
 
 

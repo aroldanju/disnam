@@ -102,8 +102,8 @@ func _process(delta) -> void:
 	var chunk: Vector2 = _calculate_current_chunk($Player.position)
 	var chunks: Array = _calculate_chunks_around(chunk)
 	$World.generate_terrain(chunks)
-	
-	
+
+
 func _calculate_current_chunk(player_position: Vector2) -> Vector2:
 	var chunk: Vector2 = Vector2(
 		player_position.x / 16 / Global.WORLD_CHUNK_SIZE,
@@ -155,5 +155,7 @@ margin_bottom = 220.0
 text = "Start"
 
 [node name="World" parent="." instance=ExtResource( 1 )]
+visible = false
 
 [node name="Player" parent="." instance=ExtResource( 2 )]
+visible = false

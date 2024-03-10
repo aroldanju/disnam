@@ -2,8 +2,8 @@ class_name Protocol
 extends Node
 
 
-var data
-var output_data
+var input_data: Message
+var output_data: PoolByteArray
 
 
 func on_data_received(data: PoolByteArray):
@@ -11,10 +11,10 @@ func on_data_received(data: PoolByteArray):
 		print("on_data_received: error parsing data")
 		return null
 	
-	return self.data
+	return self.input_data
 
 
-func on_data_sent(data) -> PoolByteArray:
+func on_data_sent(data: Message) -> PoolByteArray:
 	if not _serialize(data):
 		print("on_data_sent: error serializing data")
 		return PoolByteArray()
@@ -22,7 +22,7 @@ func on_data_sent(data) -> PoolByteArray:
 	return self.output_data
 
 
-func _serialize(data: PoolByteArray) -> bool:
+func _serialize(data: Message) -> bool:
 	return false
 
 

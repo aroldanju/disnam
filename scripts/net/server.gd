@@ -12,7 +12,7 @@ var _server: WebSocketServer = WebSocketServer.new()
 var _protocol: Protocol
 
 
-func _init(protocol: Protocol = RawProtocol.new()):
+func _init(protocol: Protocol = JsonProtocol.new()):
 	self._protocol = protocol
 
 
@@ -37,7 +37,7 @@ func start(port: int) -> bool:
 	return true
 
 
-func send(id: int, data) -> void:
+func send(id: int, data: Message) -> void:
 	self._server.get_peer(id).put_packet(self._protocol.on_data_sent(data))
 
 
@@ -72,3 +72,4 @@ func _process(delta: float) -> void:
 
 func _exit_tree():
 	self._server.stop()
+

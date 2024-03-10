@@ -7,12 +7,20 @@ func _parse(data: PoolByteArray) -> bool:
 	if result.error != OK:
 		return false
 	
-	self.data = result.result
+	self.input_data = Message.new()
+	self.input_data.set_action(result.result.action)
+	self.input_data.set_payload(result.result.payload)
 	
 	return true
 
 
-func _serialize(data) -> bool:
-	self.output_data = JSON.print(data).to_utf8()
+func _serialize(data: Message) -> bool:
+	var protocol_data: Dictionary = {
+		"action": data.get_action(),
+		"payload": data.get_payload()
+	}
+	
+	self.output_data = JSON.print(protocol_data).to_utf8()
+	
 	return true
 

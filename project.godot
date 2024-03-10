@@ -10,6 +10,16 @@ config_version=4
 
 _global_script_classes=[ {
 "base": "Node",
+"class": "Action",
+"language": "GDScript",
+"path": "res://scripts/action/action.gd"
+}, {
+"base": "Node",
+"class": "Actions",
+"language": "GDScript",
+"path": "res://scripts/action/actions.gd"
+}, {
+"base": "Node",
 "class": "Client",
 "language": "GDScript",
 "path": "res://scripts/net/client.gd"
@@ -19,20 +29,25 @@ _global_script_classes=[ {
 "language": "GDScript",
 "path": "res://scripts/entity/dungeon.gd"
 }, {
+"base": "Action",
+"class": "HandshakeAction",
+"language": "GDScript",
+"path": "res://scripts/action/handshake_action.gd"
+}, {
 "base": "Protocol",
 "class": "JsonProtocol",
 "language": "GDScript",
 "path": "res://scripts/net/json_protocol.gd"
 }, {
+"base": "Reference",
+"class": "Message",
+"language": "GDScript",
+"path": "res://scripts/net/message.gd"
+}, {
 "base": "Node",
 "class": "Protocol",
 "language": "GDScript",
 "path": "res://scripts/net/protocol.gd"
-}, {
-"base": "Protocol",
-"class": "RawProtocol",
-"language": "GDScript",
-"path": "res://scripts/net/raw_protocol.gd"
 }, {
 "base": "Node",
 "class": "Server",
@@ -40,11 +55,14 @@ _global_script_classes=[ {
 "path": "res://scripts/net/server.gd"
 } ]
 _global_script_class_icons={
+"Action": "",
+"Actions": "",
 "Client": "",
 "Dungeon": "",
+"HandshakeAction": "",
 "JsonProtocol": "",
+"Message": "",
 "Protocol": "",
-"RawProtocol": "",
 "Server": ""
 }
 
